@@ -1,0 +1,108 @@
+generator client {
+  provider             = "prisma-client"
+  output               = "../src/generated/prisma"
+  moduleFormat         = "esm"
+  importFileExxtension = "js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  SPECIALIST
+  WH_MANAGER
+  WH_WORKER
+}
+
+enum ProjectStatus {
+  NEW
+  DRAFT
+  WAIT
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role
+  projectsa    Project[]
+}
+
+model Part {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  price        Int
+  maxPerBin    Int 
+  bins         Bin[]
+  projectParts ProjectPart[]
+  pickitems    PickItem[]
+}
+
+model Bin {
+  id         Int        @id @default(autoincrement())
+  number     Int
+  row        Int
+  col        Int
+  level      Int
+  partId     Int?
+  part       Part?      @relation(fields: [partId], references: [id])
+  quantity   Int        @default(0) //ezt elirtam rip
+  prickItems PickItem[]
+
+  @@unique([row, col, level])
+}
+
+model Project {
+  id            Int                @id @default(autoincrement())
+  location      String
+  description   String             @db.Text
+  customerName  String
+  customerPhone String
+  customerEmail String
+  status        ProjectStatus      @default(NEW)
+  workHours     Int                @default(0)
+  laborCost     Int                @default(0)
+  createdById   Int
+  createdBy     User               @relation(fields: [createdById], references: [id])
+  createdAt     DateTime
+  parts         ProjectPart[]
+  statusLog     ProjectStatusLog[]
+  pickItems     PickItem[]
+}
+
+model ProjectPart {
+  projectId Int
+  partId    Int
+  quantity  Int // elirtam
+  reserved  Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  part      Part    @relation(fields: [partId], references: [id])
+
+  @@id([projectId, partId])
+}
+
+model ProjectStatusLog {
+  id        Int           @id @default(autoincrement())
+  projectId Int
+  status    ProjectStatus
+  changedAt DateTime      @default(now())
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model PickItem {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  binId     Int
+  partId    Int
+  quantity  Int //elirtam
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  bin       Bin     @relation(fields: [binId], references: [id])
+  part      Part    @relation(fields: [partId], references: [id])
+}
