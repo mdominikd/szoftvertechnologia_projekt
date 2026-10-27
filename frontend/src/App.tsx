@@ -6,6 +6,9 @@ import Layout, { MENU } from './Layout'
 import UsersPage from './pages/UsersPage'
 import PartsPage from './pages/PartsPage'
 import WarehousePage from './pages/WarehousePage'
+import StockInPage from "./pages/StockInPage"
+import ProjectPage from "./pages/ProjectsPage"
+import ProjectDetalPage from "./pages/ProjectDetailPage"
 
 function App() {
   const {user} = useAuth();
@@ -25,9 +28,10 @@ function App() {
         <Routes>
           {role === 'ADMIN' && <Route path='/users' element={<UsersPage/>} />}
           {(role === 'WH_MANAGER' || role === 'SPECIALIST') && <Route path='/parts' element={<PartsPage/>} />}
-          {(role === 'WH_MANAGER' || role === 'WH_WORKER') && (
-            <Route path='/warehouse' element={<WarehousePage/>} />
-          )}
+          {role === 'WH_MANAGER' && <Route path='/stock-in' element={<StockInPage/>} />}
+          {role === 'SPECIALIST' && <Route path="/projects" element={<ProjectPage/>} />}
+          {role === 'SPECIALIST' && <Route path="/projects/:id" element={<ProjectDetalPage/>} />}
+          {(role === 'WH_MANAGER' || role === 'WH_WORKER') && (<Route path='/warehouse' element={<WarehousePage/>} />)}
           {/*Minden mas utvonal a szerepkor elso menupontja lesz*/}
           <Route path='*' element={<Navigate to={MENU[role][0].path} replace/>} />
         </Routes>

@@ -53,7 +53,7 @@ model Bin {
   level      Int
   partId     Int?
   part       Part?      @relation(fields: [partId], references: [id])
-  quantity   Int        @default(0) //ezt elirtam rip
+  quanity   Int        @default(0) //ezt elirtam rip
   prickItems PickItem[]
 
   @@unique([row, col, level])
@@ -71,7 +71,7 @@ model Project {
   laborCost     Int                @default(0)
   createdById   Int
   createdBy     User               @relation(fields: [createdById], references: [id])
-  createdAt     DateTime
+  createdAt     DateTime           @default(now())
   parts         ProjectPart[]
   statusLog     ProjectStatusLog[]
   pickItems     PickItem[]
@@ -80,7 +80,7 @@ model Project {
 model ProjectPart {
   projectId Int
   partId    Int
-  quantity  Int // elirtam
+  quanity  Int // elirtam
   reserved  Int     @default(0)
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   part      Part    @relation(fields: [partId], references: [id])
@@ -101,7 +101,7 @@ model PickItem {
   projectId Int
   binId     Int
   partId    Int
-  quantity  Int //elirtam
+  quanity  Int //elirtam
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   bin       Bin     @relation(fields: [binId], references: [id])
   part      Part    @relation(fields: [partId], references: [id])

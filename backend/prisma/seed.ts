@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 
 import { PrismaClient} from '../src/generated/prisma/client.js';
 import {binNumber, WAREHOUSE} from '../src/domain/warehouse.js';
+import { planStockIn } from '../src/domain/stock.js';
 
 const prisma = new PrismaClient({
     adapter: new PrismaMariaDb(process.env.DATABASE_URL!),
@@ -73,6 +74,30 @@ await prisma.part.createMany({
     ],
 });
 
-console.log('seed elkeszult, 4 user, 240 rekesz, 8 alkatresz');
+//kezdokeszlet
+
+const initialStock: Record<string, number> = {
+    'Napelem panel 450W': 33,
+    'Invertor 5kW': 3,
+    'Tarto konzol': 120,
+    'sin': 30,
+    'csatlakozo par': 90,
+    'solar kabel 100m': 4,
+    'DC megszakit': 10,
+};
+
+for(const part of await prisma.part.findMany()) {
+    const quanity = initialStock[part.name];
+    if(!quanity) continue;
+    const free = await prisma.bin.findMany({where: {OR: [{ partId: part.id}, {partId: null}]}});
+    for(const {binId, add} of  planStockIn(free, part.id, part.maxPerBin, quanity)) {
+        await prisma.bin.update({
+            where: {id: binId},
+            data: { partId: part.id, quanity: { increment: add}}, 
+        });
+    }
+}
+
+console.log("Seed kesz.....")
 
 await prisma.$disconnect();

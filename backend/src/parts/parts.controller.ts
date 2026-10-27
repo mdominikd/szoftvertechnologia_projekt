@@ -23,7 +23,7 @@ export class PartsController{
 
     //ParseIntPipe url bol szovegge, ha nem szam 400
     // ar, maxperbin
-    @Roles('WH_MANAGER')
+    @Roles('WH_MANAGER','ADMIN')
     @Patch(':id')
     update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePartDto){
         return this.parts.update(id, dto);

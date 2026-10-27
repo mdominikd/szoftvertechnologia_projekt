@@ -6,10 +6,11 @@ import { AuthModule } from './auth/auth.module.js';
 import { UserModule } from './users/users.module.js';
 import { PartsModule } from './parts/parts.module.js';
 import { WarehouseModule } from './warehouse/warehouse.module.js';
+import { ProjectModule } from './porjects/projects.module.js';
 
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule,PartsModule, WarehouseModule],
+  imports: [PrismaModule, AuthModule, UserModule,PartsModule, WarehouseModule, ProjectModule],
   providers: [{ provide: APP_GUARD, useClass: AuthGuard}],
 })
 export class AppModule {}

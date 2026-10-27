@@ -14,7 +14,7 @@ export default function PartsPage() {
     const [parts, setParts]= useState<Part[]>([]);
     const [error, setError] = useState('');
     const [newPart, setNewPart] = useState({name: '', price:0, maxPerBin: 1});
-    const [edit, setEdit] = useState({id: null as string | null, price: 0})
+    const [edit, setEdit] = useState({id: null as string | null, price: 0, maxPerBin: 1})
 
     const load = () =>
         api<Part[]>('/parts')
@@ -60,7 +60,10 @@ export default function PartsPage() {
                             label="Alkatresz"
                             data={parts.map((p) => ({ value: String(p.id), label: p.name}))}
                             value={edit.id}
-                            onChange={(id) => setEdit({ id, price: parts.find((p) => String(p.id) ===id)?.price ?? 0})}
+                            onChange={(id) => {
+                                const p = parts.find((p) => String(p.id) == id);
+                                setEdit({id, price: p?.price ?? 0, maxPerBin: p?.maxPerBin ??1});
+                            }}
                         />
                         <NumberInput
                             label="Uj ar (Ft)"
@@ -68,9 +71,17 @@ export default function PartsPage() {
                             value={edit.price}
                             onChange={(v) => setEdit({...edit, price: Number(v)})}
                         />
+                        <NumberInput
+                            label="Max / rekesz"
+                            min={1}
+                            value={edit.maxPerBin}
+                            onChange={(v)=> setEdit({ ...edit, maxPerBin: Number(v)})}
+                        >
+                            
+                        </NumberInput>
                         <Button
                             disabled={!edit.id}
-                            onClick={() => save(`/parts/${edit.id}`, 'PATCH', {price: edit.price})}                        
+                            onClick={() => save(`/parts/${edit.id}`, 'PATCH', {price: edit.price, maxPerBin: edit.maxPerBin})}                        
                         >
                             Modositas
                         </Button>

@@ -9,8 +9,12 @@ export const MENU: Record<Role, {path: string;label: string} []> = {
     WH_MANAGER: [
         { path:'/parts',label:'Alkatreszek'},
         { path:'/warehouse',label:'Raktar'},
+        { path:'/stock-in',label:'Bevetelezes'},
     ],
-    SPECIALIST: [{ path:'/parts',label:'Alkatreszek'}],
+    SPECIALIST: [
+        { path:'/projects',label:'Projektek'},
+        { path:'/parts',label:'Alkatreszek'},
+    ],
     WH_WORKER: [{ path:'/warehouse',label:'Raktar'}],
 }
 

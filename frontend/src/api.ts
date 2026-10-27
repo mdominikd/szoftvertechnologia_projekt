@@ -4,6 +4,38 @@
 const BASE_URL = 'http://127.0.0.1:3000';
 
 
+export type ProjectStatus = 'NEW' | 'DRAFT' | 'WAIT' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+
+export type Project = {
+    id: number;
+    location: string;
+    description: string;
+
+    customerName: string;
+    customerPhone: string;
+    customerEmail: string;
+    status: ProjectStatus;
+    workHours: number;
+    laborCost: number;
+    createdAt: string;
+    createdBy ?: {name: string};
+}
+
+export type ProjectDetail = Project & {
+    parts: {partId: number; quanity: number; reserved: number, part: {name: string; price:number}} [];
+    statusLog: {id: number; status:ProjectStatus; changedAt: string}[];
+}
+
+export const STATUS: Record<ProjectStatus, {label: string; color:string}> = {
+    NEW: {label: 'New', color: 'gray'},
+    DRAFT: {label: 'Draft', color: 'blue'},
+    WAIT: {label: 'Wait', color: 'orange'},
+    SCHEDULED: {label: 'Scheduled', color: 'teal'},
+    IN_PROGRESS: {label: 'InProgress', color: 'violet'},
+    COMPLETED: {label: 'Completed', color: 'green'},
+    FAILED: {label: 'Failed', color: 'red'},
+}
+export const huf = (n: number) => `${n.toLocaleString('hu-HU')} Ft`;
 
 export type Role = 'ADMIN' | 'SPECIALIST' | 'WH_MANAGER'| 'WH_WORKER';
 export type User = { id: number; name: string; email:string; role: Role};
