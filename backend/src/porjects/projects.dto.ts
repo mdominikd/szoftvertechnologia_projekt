@@ -1,4 +1,4 @@
-import { IsInt, IsString, Min, MinLength } from "class-validator";
+import { IsBoolean, IsInt, IsString, Min, MinLength } from "class-validator";
 
 export class CreateProjectDto {
     @IsString() @MinLength(1)   location: string;
@@ -17,4 +17,8 @@ export class AddPartDto {
 export class WorkDto {
     @IsInt() @Min(0) workHours: number;
     @IsInt() @Min(0) laborCost: number;
+}
+
+export class CloseDto {
+    @IsBoolean() success: boolean;
 }

@@ -9,6 +9,9 @@ import WarehousePage from './pages/WarehousePage'
 import StockInPage from "./pages/StockInPage"
 import ProjectPage from "./pages/ProjectsPage"
 import ProjectDetalPage from "./pages/ProjectDetailPage"
+import MisssingPage from "./pages/MissingPage"
+import PickingListPage from "./pages/PickingListPage"
+import PickingPage from './pages/PickingPage'
 
 function App() {
   const {user} = useAuth();
@@ -29,6 +32,9 @@ function App() {
           {role === 'ADMIN' && <Route path='/users' element={<UsersPage/>} />}
           {(role === 'WH_MANAGER' || role === 'SPECIALIST') && <Route path='/parts' element={<PartsPage/>} />}
           {role === 'WH_MANAGER' && <Route path='/stock-in' element={<StockInPage/>} />}
+          {role === 'WH_MANAGER' && <Route path='/missing' element={<MisssingPage/>} />}
+          {role === 'WH_WORKER' && <Route path='/picking' element={<PickingListPage/>} />}
+          {role === 'WH_WORKER' && <Route path='/picking/:id' element={<PickingPage/>} />}
           {role === 'SPECIALIST' && <Route path="/projects" element={<ProjectPage/>} />}
           {role === 'SPECIALIST' && <Route path="/projects/:id" element={<ProjectDetalPage/>} />}
           {(role === 'WH_MANAGER' || role === 'WH_WORKER') && (<Route path='/warehouse' element={<WarehousePage/>} />)}

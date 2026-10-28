@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { CurrentUser, type JwtUser, Roles } from "../auth/decorators.js";
 import { ProjectsService} from './projects.service.js'
-import { AddPartDto, CreateProjectDto, WorkDto } from "./projects.dto.js";
+import { AddPartDto, CloseDto, CreateProjectDto, WorkDto } from "./projects.dto.js";
 
 
 @Roles('SPECIALIST', 'ADMIN')
@@ -35,4 +35,21 @@ export class ProjectController {
     setWork(@Param('id', ParseIntPipe) id: number, @Body() dto: WorkDto) {
         return this.projects.setWork(id, dto)
     }
+
+
+    @Post(':id/calculate')
+    calculate(@Param('id', ParseIntPipe) id: number){
+        return this.projects.calculate(id);
+    }
+
+    @Post(':id/close')
+    close(@Param('id', ParseIntPipe) id: number, @Body() dto: CloseDto){
+        return this.projects.close(id, dto);
+    }
+
+    @Get(':id/log')
+    log(@Param('id', ParseIntPipe) id: number){
+        return this.projects.log(id);
+    }
+
 }

@@ -3,7 +3,16 @@
 import { useParams } from "react-router";
 import { api, huf, STATUS, type Part, type ProjectDetail } from "../api";
 import { useEffect, useState } from "react";
-import { Alert, Badge, Button, Group, NumberInput, Paper, Select, Stack, Table, Text, Title } from "@mantine/core";
+import { Alert, Badge, Button, Group, NumberInput, Paper, Select, Stack, Table, Text, Timeline, Title } from "@mantine/core";
+
+
+type Calculation = {
+    partsCost: number;
+    laborCost: number;
+    total: number;
+    missing: { partId: number; name: string; missing: number} [];
+}
+
 
 
 export default function ProjectDetalPage() {
@@ -12,6 +21,7 @@ export default function ProjectDetalPage() {
     const [parts, setParts] = useState<Part[]>([]);
     const [add, setAdd] = useState({partId: null as string | null, quanity: 1});
     const [work, setWork] = useState({workHours: 0, laborCost: 0});
+    const [calc, setCalc] = useState<Calculation | null>(null);
     const [error, setError] = useState('');
 
     async function load() {
@@ -26,11 +36,12 @@ export default function ProjectDetalPage() {
     }, [id]);
 
 
-    async function run(path: string, method: string, body: unknown) {
+    async function run<T>(path: string, method: string, body?: unknown) {
         try {
-            await api(`/projects/${id}${path}`, {method, body});
+            const rs = await api<T>(`/projects/${id}${path}`, {method, body});
             setError('');
             await load();
+            return rs;
         } catch (error) {
             setError((error as Error).message);
         }
@@ -117,6 +128,44 @@ export default function ProjectDetalPage() {
                     </Group>
                 </>
             )}
+            {(project.status === 'DRAFT' || project.status === 'WAIT') && (
+                <Group>
+                    <Button onClick={async ()=> setCalc((await run<Calculation>('/calculate', 'POST')) ?? null)}>
+                        Arukalkulacio
+                    </Button>
+                </Group>
+            )}
+            {calc && (
+                <Paper withBorder p="sm">
+                    <Text>Alkatreszxek: {huf(calc.partsCost)}</Text>
+                    <Text>Munkadij: {huf(calc.laborCost)}</Text>
+                    <Text fw={700}>Osszesen: {huf(calc.total)}</Text>
+                    {calc.missing.length > 0 && (
+                        <Alert color="orange" mt="xs">
+                            Hianyzo alaktreszek (a projekt Wait allapotba kerult):{' '}
+                            {calc.missing.map((m) => `${m.name} (${m.missing} db)`).join(', ')}
+                        </Alert>
+                    )}
+                </Paper>
+            )}
+
+            {project.status === 'IN_PROGRESS' && (
+                <Group>
+                    <Button color="green" onClick={() => run('/close', 'POST', {success: true})}>Lezaras Sikeres</Button>
+                    <Button color="red" onClick={() => run('/close', 'POST', {success: false})}>Lezaras sikertelen</Button>
+                </Group>
+            )}
+
+            <Title order={4}>Allapotnaplo</Title>
+            <Timeline active={project.status.length -1}>
+                {project.statusLog.map((log)=> (
+                <Timeline.Item key={log.id} title={STATUS[log.status].label}>
+                    <Text size="xs" c="dimmed">
+                        {new Date(log.changedAt).toLocaleString('hu-HU')}
+                    </Text>
+                </Timeline.Item>
+                ))}
+            </Timeline>
         </Stack>
     )
 }

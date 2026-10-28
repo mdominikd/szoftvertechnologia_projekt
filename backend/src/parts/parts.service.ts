@@ -48,7 +48,26 @@ export class PartService {
         return this.prisma.part.create({data: dto })
     }
         
+    async missing() {
+        const parts = await this.findAll();
+        return parts
+            .filter((p)=> p.free <= 0 || p.demand > p.stock)
+            .map((p)=> ({ ...p, toOrder: Math.max(0, p.demand - p.stock)}));
+    }
 
+    async prereserved() {
+        const items = await this.prisma.projectPart.findMany({
+            where: { project: {status: { in: RESERVING_STATUSES}}},
+            include: {
+                project: { select: {id:true, location: true, status: true} },
+                part: { select: { name:true}},
+            },
+            orderBy: { project:{ createdAt: 'asc'}},
+        });
+        return items
+            .filter((i)=> i.reserved < i.quanity)
+            .map((i)=> ({ ...i, missing: i.quanity -i.reserved}));
+    }
 
     //update ar modositas
     async update(id: number, dto: UpdatePartDto) {
@@ -60,6 +79,8 @@ export class PartService {
         }
         return this.prisma.part.update({where: { id}, data: dto});
     }
+
+
 }
 
 

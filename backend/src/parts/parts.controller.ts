@@ -28,5 +28,17 @@ export class PartsController{
     update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePartDto){
         return this.parts.update(id, dto);
     }
+
+    @Roles('WH_MANAGER')
+    @Get('missing')
+    missing() {
+        return this.parts.missing();
+    }
+
+    @Roles('WH_MANAGER')
+    @Get('prereserved')
+    prereserved() {
+        return this.parts.prereserved();
+    }
 }
 

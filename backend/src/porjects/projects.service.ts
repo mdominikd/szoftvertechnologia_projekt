@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, ProjectStatus } from "../generated/prisma/client.js";
 import { PrismaService } from "../prisma.service.js";
-import { AddPartDto, CreateProjectDto, WorkDto } from "./projects.dto.js";
+import { AddPartDto, CloseDto, CreateProjectDto, WorkDto } from "./projects.dto.js";
 import { canTransition, EDITABLE_STATUSES } from "../domain/status.js";
 import { stockInclude, withStock } from "../parts/parts.service.js";
 
@@ -87,5 +87,45 @@ export class ProjectsService {
         if(!EDITABLE_STATUSES.includes(project.status)) {
             throw new BadRequestException('a project ebben az allapotaban nem modosithato');
         }
+    }
+
+    calculate(projectId: number) {
+        return this.prisma.$transaction(async (tx)=> {
+            const project = await tx.project.findUnique({
+                where: {id: projectId},
+                include: {parts: {include: {part : true}}},
+            });
+            if(!project) throw new NotFoundException('nincs ilyen projekt!');
+            if(project.status != 'DRAFT' && project.status != 'WAIT') {
+                throw new BadRequestException('Arkalkulacio csak draft vagy Wait allapotban keszitheto');
+
+            }
+            const partsCost = project.parts.reduce((sum, pp) => sum + pp.quanity* pp.part.price , 0);
+            const missing = project.parts
+                .filter((pp)=> pp.reserved <pp.quanity)
+                .map((pp)=> ({ partId: pp.partId, name: pp.part.name, missing: pp.quanity -pp.reserved}));
+            await this.changeStatus(tx, projectId, missing.length > 0 ? 'WAIT' : 'SCHEDULED');
+            return { partsCost, laborCost: project.laborCost, total: partsCost+project.laborCost, missing};
+        });
+    }
+
+    close(projectId: number, dto: CloseDto) {
+        return this.prisma.$transaction(async (tx)=> {
+            const project = await tx.project.findUnique({
+                where: {id: projectId},
+            });
+            if(!project) throw new NotFoundException('nincs ilyen projekt!');
+            if(project.status != 'IN_PROGRESS')
+                throw new BadRequestException('csak InProgress projekt zarhato le!');
+            await this.changeStatus(tx, projectId, dto.success ? 'COMPLETED': 'FAILED');
+            return tx.project.findUnique({
+                where: {id: projectId},
+            });
+            
+        });
+    }
+
+    log(projectId: number) {
+           return this.prisma.projectStatusLog.findMany({ where: { projectId}, orderBy: { id: 'asc'}});
     }
 }

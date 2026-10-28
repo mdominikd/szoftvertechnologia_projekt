@@ -10,12 +10,16 @@ export const MENU: Record<Role, {path: string;label: string} []> = {
         { path:'/parts',label:'Alkatreszek'},
         { path:'/warehouse',label:'Raktar'},
         { path:'/stock-in',label:'Bevetelezes'},
+        { path:'/missing',label:'Hianylistak'},
     ],
     SPECIALIST: [
         { path:'/projects',label:'Projektek'},
         { path:'/parts',label:'Alkatreszek'},
     ],
-    WH_WORKER: [{ path:'/warehouse',label:'Raktar'}],
+    WH_WORKER: [
+        { path:'/picking',label:'Kivetelezes'},
+        { path:'/warehouse',label:'Raktar'},
+    ],
 }
 
 export default function Layout({children}: {children: ReactNode}) {
