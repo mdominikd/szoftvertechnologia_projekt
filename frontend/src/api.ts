@@ -27,13 +27,13 @@ export type ProjectDetail = Project & {
 }
 
 export const STATUS: Record<ProjectStatus, {label: string; color:string}> = {
-    NEW: {label: 'Uj', color: 'gray'},
-    DRAFT: {label: 'Tervezett', color: 'blue'},
-    WAIT: {label: 'Varakozik', color: 'orange'},
-    SCHEDULED: {label: 'Utemezett', color: 'teal'},
-    IN_PROGRESS: {label: 'Folyamatban', color: 'violet'},
-    COMPLETED: {label: 'Befejezett', color: 'green'},
-    FAILED: {label: 'Sikertelen', color: 'red'},
+    NEW: {label: 'New', color: 'gray'},
+    DRAFT: {label: 'Draft', color: 'blue'},
+    WAIT: {label: 'Wait', color: 'orange'},
+    SCHEDULED: {label: 'Scheduled', color: 'teal'},
+    IN_PROGRESS: {label: 'InProgress', color: 'violet'},
+    COMPLETED: {label: 'Completed', color: 'green'},
+    FAILED: {label: 'Failed', color: 'red'},
 }
 export const huf = (n: number) => `${n.toLocaleString('hu-HU')} Ft`;
 
