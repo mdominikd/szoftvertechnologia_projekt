@@ -1,4 +1,3 @@
-import "@mantine/core/styles.css"
 import { useAuth } from './auth'
 import { Navigate, Route, Routes } from 'react-router'
 import LoginPage from './pages/LoginPage'
@@ -9,7 +8,7 @@ import WarehousePage from './pages/WarehousePage'
 import StockInPage from "./pages/StockInPage"
 import ProjectPage from "./pages/ProjectsPage"
 import ProjectDetalPage from "./pages/ProjectDetailPage"
-import MisssingPage from "./pages/MissingPage"
+import MissingPage from "./pages/MissingPage"
 import PickingListPage from "./pages/PickingListPage"
 import PickingPage from './pages/PickingPage'
 
@@ -32,13 +31,12 @@ function App() {
           {role === 'ADMIN' && <Route path='/users' element={<UsersPage/>} />}
           {(role === 'WH_MANAGER' || role === 'SPECIALIST') && <Route path='/parts' element={<PartsPage/>} />}
           {role === 'WH_MANAGER' && <Route path='/stock-in' element={<StockInPage/>} />}
-          {role === 'WH_MANAGER' && <Route path='/missing' element={<MisssingPage/>} />}
+          {role === 'WH_MANAGER' && <Route path='/missing' element={<MissingPage/>} />}
           {role === 'WH_WORKER' && <Route path='/picking' element={<PickingListPage/>} />}
           {role === 'WH_WORKER' && <Route path='/picking/:id' element={<PickingPage/>} />}
           {role === 'SPECIALIST' && <Route path="/projects" element={<ProjectPage/>} />}
           {role === 'SPECIALIST' && <Route path="/projects/:id" element={<ProjectDetalPage/>} />}
           {(role === 'WH_MANAGER' || role === 'WH_WORKER') && (<Route path='/warehouse' element={<WarehousePage/>} />)}
-          {/*Minden mas utvonal a szerepkor elso menupontja lesz*/}
           <Route path='*' element={<Navigate to={MENU[role][0].path} replace/>} />
         </Routes>
       </Layout>

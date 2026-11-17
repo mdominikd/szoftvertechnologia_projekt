@@ -1,6 +1,3 @@
-// egy kis fetch wrapper a backend hivasokhoz, plusz kozos adattipusok
-
-
 const BASE_URL = 'http://127.0.0.1:3000';
 
 
@@ -27,14 +24,37 @@ export type ProjectDetail = Project & {
 }
 
 export const STATUS: Record<ProjectStatus, {label: string; color:string}> = {
-    NEW: {label: 'New', color: 'gray'},
-    DRAFT: {label: 'Draft', color: 'blue'},
-    WAIT: {label: 'Wait', color: 'orange'},
-    SCHEDULED: {label: 'Scheduled', color: 'teal'},
-    IN_PROGRESS: {label: 'InProgress', color: 'violet'},
-    COMPLETED: {label: 'Completed', color: 'green'},
-    FAILED: {label: 'Failed', color: 'red'},
+    NEW: {label: 'Új', color: 'gray'},
+    DRAFT: {label: 'Tervezet', color: 'blue'},
+    WAIT: {label: 'Várakozik', color: 'yellow'},
+    SCHEDULED: {label: 'Ütemezett', color: 'cyan'},
+    IN_PROGRESS: {label: 'Folyamatban', color: 'indigo'},
+    COMPLETED: {label: 'Befejezett', color: 'green'},
+    FAILED: {label: 'Sikertelen', color: 'red'},
 }
+
+export const STATUS_ORDER: ProjectStatus[] = ['NEW', 'DRAFT', 'WAIT', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'FAILED'];
+
+export const EDITABLE: ProjectStatus[] = ['NEW', 'DRAFT', 'WAIT'];
+
+export const NEXT_STEP: Record<ProjectStatus, string> = {
+    NEW: 'Adj hozzá alkatrészeket, és add meg a becsült munkaórát.',
+    DRAFT: 'Ha az alkatrészlista és a munkaóra kész, futtasd az árkalkulációt.',
+    WAIT: 'Hiányzó alkatrész miatt vár. A bevételezés után futtasd újra az árkalkulációt.',
+    SCHEDULED: 'Minden alkatrész lefoglalva. A raktáros indítja a kivételezést.',
+    IN_PROGRESS: 'A kivételezés megtörtént. Zárd le a projektet, ha a munka kész.',
+    COMPLETED: 'A projekt le van zárva.',
+    FAILED: 'A projekt sikertelenként le van zárva.',
+}
+
+export function stepIndex(status: ProjectStatus): number {
+    if (status === 'NEW') return 0;
+    if (status === 'DRAFT' || status === 'WAIT') return 1;
+    if (status === 'SCHEDULED') return 2;
+    if (status === 'IN_PROGRESS') return 3;
+    return 4;
+}
+
 export const huf = (n: number) => `${n.toLocaleString('hu-HU')} Ft`;
 
 export type Role = 'ADMIN' | 'SPECIALIST' | 'WH_MANAGER'| 'WH_WORKER';
@@ -44,15 +64,15 @@ export type Part = {
     name: string;
     price: number;
     maxPerBin: number;
-    stock: number; // db a rekeszekben
-    reserved: number // aktiv projektek altal lefoglalva
-    free: number // szabad
-    demand: number; // aktiv projektek teljes igenye
+    stock: number;
+    reserved: number
+    free: number
+    demand: number;
 };
 
 export type Bin = {
     id: number
-    nubmer: number;
+    number: number;
     row: number;
     col: number;
     level: number;
@@ -61,10 +81,10 @@ export type Bin = {
 };
 
 export const ROLE_NAMES: Record<Role, string> = {
-    ADMIN: "Adminisztrator",
-    SPECIALIST: "Specialista",
-    WH_MANAGER: "Raktarvezeto",
-    WH_WORKER: "Raktaros",
+    ADMIN: "Adminisztrátor",
+    SPECIALIST: "Szakember",
+    WH_MANAGER: "Raktárvezető",
+    WH_WORKER: "Raktáros",
 };
 
 
@@ -78,10 +98,10 @@ export async function api<T>(path: string, options: { method?: string; body?: un
         },
         body: options.body === undefined ? undefined :  JSON.stringify(options.body),
     });
-    
-    //lejart vagy ervenytelen tokeneket kezelni kell (login redirect, ls clear)
+
     if(res.status === 401 && token) {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login';
     }
 
@@ -92,6 +112,3 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     }
     return data as T;
 }
-
-
-
